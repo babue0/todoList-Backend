@@ -24,11 +24,11 @@ public class TodoService {
     return repository.save(todo);
   }
 
-  public void markAsDone(Long id) {
+  public void updateDone(Long id, boolean done) {
     Todo todo = repository.findById(id)
             .orElseThrow(() -> new RuntimeException("Todo não encontrado"));
 
-    todo.setDone(true);
+    todo.setDone(done);
     repository.save(todo);
   }
 

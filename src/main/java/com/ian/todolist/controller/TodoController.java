@@ -30,8 +30,8 @@ public class TodoController {
   }
 
   @PutMapping("/{id}/done")
-  public void markAsDone(@PathVariable Long id) {
-    service.markAsDone(id);
+  public void updateDone(@PathVariable Long id, @RequestParam boolean done) {
+    service.updateDone(id, done);
   }
 
   @DeleteMapping("/{id}")
