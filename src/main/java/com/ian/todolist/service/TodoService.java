@@ -2,49 +2,37 @@ package com.ian.todolist.service;
 
 import com.ian.todolist.model.Todo;
 import com.ian.todolist.repository.TodoRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class TodoService {
 
-  private final TodoRepository repository = new TodoRepository();
+  private final TodoRepository repository;
+
+  public TodoService(TodoRepository repository) {
+    this.repository = repository;
+  }
 
   public List<Todo> listTodos() {
-    return repository.loadTodos();
+    return repository.findAll();
   }
 
   public Todo addTodo(String title) {
-    List<Todo> todos = repository.loadTodos();
-
-    long nextId = todos.stream()
-            .mapToLong(Todo::getId)
-            .max()
-            .orElse(0L) + 1;
-
-    Todo todo = new Todo(nextId, title, false);
-
-    todos.add(todo);
-    repository.saveTodos(todos);
-
-    return todo;
+    Todo todo = new Todo(title);
+    return repository.save(todo);
   }
 
   public void markAsDone(Long id) {
-    List<Todo> todos = repository.loadTodos();
+    Todo todo = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Todo não encontrado"));
 
-    todos.stream()
-            .filter(t -> t.getId().equals(id))
-            .findFirst()
-            .ifPresent(t -> t.setDone(true));
-
-    repository.saveTodos(todos);
+    todo.setDone(true);
+    repository.save(todo);
   }
 
   public void deleteTodo(Long id) {
-    List<Todo> todos = repository.loadTodos();
-
-    todos.removeIf(t -> t.getId().equals(id));
-
-    repository.saveTodos(todos);
+    repository.deleteById(id);
   }
 }
