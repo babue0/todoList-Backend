@@ -1,38 +1,52 @@
 package com.ian.todolist.service;
 
 import com.ian.todolist.model.Todo;
+import com.ian.todolist.model.User;
 import com.ian.todolist.repository.TodoRepository;
+import com.ian.todolist.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TodoService {
 
-  private final TodoRepository repository;
+  private final TodoRepository todoRepository;
+  private final UserRepository userRepository;
 
-  public TodoService(TodoRepository repository) {
-    this.repository = repository;
+  public TodoService(TodoRepository todoRepository, UserRepository userRepository) {
+    this.todoRepository = todoRepository;
+    this.userRepository = userRepository;
   }
 
-  public List<Todo> listTodos() {
-    return repository.findAll();
+  private User getOrCreateUser(UUID userId) {
+    return userRepository.findById(userId)
+            .orElseGet(() -> userRepository.save(new User(userId)));
   }
 
-  public Todo addTodo(String title) {
-    Todo todo = new Todo(title);
-    return repository.save(todo);
+  public List<Todo> list(UUID userId) {
+    return todoRepository.findByUserId(userId);
   }
 
-  public void updateDone(Long id, boolean done) {
-    Todo todo = repository.findById(id)
+  public Todo create(UUID userId, String title) {
+    User user = getOrCreateUser(userId);
+    Todo todo = new Todo(title, user);
+    return todoRepository.save(todo);
+  }
+
+  public void toggleDone(UUID userId, Long todoId, boolean done) {
+    Todo todo = todoRepository.findByIdAndUserId(todoId, userId)
             .orElseThrow(() -> new RuntimeException("Todo não encontrado"));
 
     todo.setDone(done);
-    repository.save(todo);
+    todoRepository.save(todo);
   }
 
-  public void deleteTodo(Long id) {
-    repository.deleteById(id);
+  public void delete(UUID userId, Long todoId) {
+    Todo todo = todoRepository.findByIdAndUserId(todoId, userId)
+            .orElseThrow(() -> new RuntimeException("Todo não encontrado"));
+
+    todoRepository.delete(todo);
   }
 }

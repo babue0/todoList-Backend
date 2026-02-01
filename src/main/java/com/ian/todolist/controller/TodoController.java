@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/todos")
@@ -20,22 +21,30 @@ public class TodoController {
   }
 
   @GetMapping
-  public List<Todo> listTodos() {
-    return service.listTodos();
+  public List<Todo> list(
+    @RequestHeader("X-USER-ID") UUID userId){
+    return service.list(userId);
   }
 
   @PostMapping
-  public Todo createTodo(@RequestBody @Valid TodoRequest request) {
-    return service.addTodo(request.getTitle());
+  public Todo createTodo(@RequestHeader("X-USER-ID") UUID userId, @RequestBody TodoRequest request) {
+    return service.create(userId, request.getTitle());
   }
 
   @PutMapping("/{id}/done")
-  public void updateDone(@PathVariable Long id, @RequestParam boolean done) {
-    service.updateDone(id, done);
+  public void toggleDone(
+          @RequestHeader("X-USER-ID") UUID userId,
+          @PathVariable Long id,
+          @RequestParam boolean done) {
+
+    service.toggleDone(userId, id, done);
   }
 
   @DeleteMapping("/{id}")
-  public void deleteTodo(@PathVariable Long id) {
-    service.deleteTodo(id);
+  public void delete(
+          @RequestHeader("X-USER-ID") UUID userId,
+          @PathVariable Long id) {
+
+    service.delete(userId, id);
   }
 }

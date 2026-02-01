@@ -1,6 +1,5 @@
 package com.ian.todolist.model;
 
-
 import jakarta.persistence.*;
 
 @Entity
@@ -17,15 +16,17 @@ public class Todo {
   @Column(nullable = false)
   private boolean done;
 
-  public Todo(){
-  }
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
+  protected Todo() {}
 
-  public Todo(String title) {
+  public Todo(String title, User user) {
     this.title = title;
     this.done = false;
+    this.user = user;
   }
-
 
   public Long getId() {
     return id;
@@ -41,5 +42,9 @@ public class Todo {
 
   public void setDone(boolean done) {
     this.done = done;
+  }
+
+  public User getUser() {
+    return user;
   }
 }
