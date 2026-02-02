@@ -27,7 +27,7 @@ public class TodoController {
   }
 
   @PostMapping
-  public Todo createTodo(@RequestHeader("X-USER-ID") UUID userId, @RequestBody TodoRequest request) {
+  public Todo createTodo(@RequestHeader("X-USER-ID") UUID userId, @Valid @RequestBody TodoRequest request) {
     return service.create(userId, request.getTitle());
   }
 
